@@ -1,113 +1,111 @@
-import { BodiesFactory, Bounds } from 'matter'
-import Phaser, { Physics } from 'phaser'
+// import Phaser, { Physics } from 'phaser'
 
-export default class Game extends Phaser.Scene{
-    
-    init(){
-        this.paddelRightVelocity = new Phaser.Math.Vector2(0, 0)
-        this.leftScore = 0
-        this.rightScore = 0
-    }
-    
-    preload(){
-        this.load.image('port', '../assets/server.png')
-    }
-    create(){
-        // this.add.text(400, 250, 'Gameee!')
+// export default class Game extends Phaser.Scene{
 
-        this.physics.world.setBounds(-100, 0, 1000, 500)
+var Level1 = new Phaser.Class({
 
-        this.ball = this.add.circle(400, 250, 10, 0xffffff, 1)
-        this.physics.add.existing(this.ball)
+    Extends: Phaser.Scene,
 
-        this.resetBall()
+    initialize:
 
-        this.ball.body.setCollideWorldBounds(true, 1, 1)
+        function Level1 ()
+        {
+            Phaser.Scene.call(this, { key: 'level1' });
+        },
 
-        this.ball.body.setBounce(1, 1)
+    preload: function (){
+        console.log("preload111")
+        this.load.image('LNS', 'https://raw.githubusercontent.com/Davinaaa/Dissertation_project/main/Phaser_project/src/assets/LNS.png');
+        this.load.image('monster', 'https://raw.githubusercontent.com/Davinaaa/Dissertation_project/main/Phaser_project/src/assets/Monster1.png')
+        this.load.image('server', 'https://raw.githubusercontent.com/Davinaaa/Dissertation_project/main/Phaser_project/src/assets/server1.png');
+    },
 
-        this.paddelLeft = this.add.rectangle(50, 250, 30, 100, 0xffffff, 1)
-        this.paddelRight = this.add.rectangle(750, 250,30, 100, 0xffffff, 1)
-        this.port = this.add.image(50, 400, 'port')
+    create: function (){
+        var monster = this.physics.add.group({key: 'monster', frameQuantity: 6, setXY: {x: 100, y: 500, stepX: 100}});
+        // var monster = this.physics.add.image(200, 300, 'monster').setScale(.1);
+        var LNS = this.physics.add.image(200, 300, 'LNS').setScale(.1);
+        var cursor = this.add.image(0, 0, 'server').setVisible(false).setScale(.1);
+        var server = this.physics.add.staticImage(700, 300, 'server');
 
-        this.physics.add.existing(this.paddelLeft, true)
-        this.physics.add.existing(this.paddelRight, true)
-        this.physics.add.existing(this.port, true)
 
-        this.physics.add.collider(this.paddelLeft, this.ball)
-        this.physics.add.collider(this.paddelRight, this.ball)
+        LNS.body.setCollideWorldBounds(true, 1, 1);
+        LNS.body.setBounce(1, 1);
 
-        this.cursors = this.input.keyboard.createCursorKeys()
+        this.input.on('pointermove', function (pointer) {
+            cursor.setVisible(false).setPosition(pointer.x, pointer.y);
 
-        //socre
-        this.leftScoreLable = this.add.text(300, 125, '0', {fontSize: 48}).setOrigin(0.5, 0.5)
-        this.rightScoreLable = this.add.text(500, 325, '0', {fontSize: 48}).setOrigin(0.5, 0.5)
+            this.physics.moveToObject(LNS, pointer, 240);
 
-    }
-    update(){
-        /** @type {Phaser.Physics.Arcade.StaticBody} */
-        const body = this.paddelLeft.body
+            Phaser.Utils.Array.Each(
+                monster.getChildren(),
+                this.physics.moveToObject,
+                this.physics,
+                pointer, 100);
+        }, this);
 
-        console.log("123update")
-        if(this.cursors.up.isDown){
-            this.paddelLeft.y -= 10
-            body.updateFromGameObject()
-            // console.log("up pressed")
-            // body.setVelocityY(-100)
-        } else if(this.cursors.down.isDown){
-            this.paddelLeft.y += 10
-            body.updateFromGameObject()
-        }
+        // this.matter.world.on('collisionstart', function (event, LNS, server) {
+        //
+        //     LNS.gameObject.setTint(0xff0000);
+        //     server.gameObject.setTint(0x00ff00);
+        //
+        // });
+        // this.physics.add.collider(LNS, server);
+        this.physics.add.collider(LNS, monster, null, function () {
+            // this.physics.world.removeCollider(collider);
+            console.log('loose');
+            this.scene.start('loose');
 
-        const diff = this.ball.y - this.paddelRight.y
-        if (Math.abs(diff)< 10){
-            return
-        }
 
-        const aiSpeed = 3
-        if(diff < 0){
-            //ball is above the paddel
-            this.paddelRightVelocity.y = -aiSpeed
-            if(this.paddelRightVelocity.y < -10){  
-                this.paddelRightVelocity.y = -10
-            }
+        }, this);
+        console.log(this.physics.add.collider(LNS, monster));
+        this.physics.add.collider(LNS, server, null, function () {
+            // this.physics.world.removeCollider(collider);
+            console.log('worked');
+            this.scene.start('win');
 
-        } else if(diff > 0){
-            // ball is below
-            this.paddelRightVelocity.y = aiSpeed
-            if(this.paddelRightVelocity.y > 10){  
-                this.paddelRightVelocity.y = 10
-            }
+        }, this);
+    },
+});
 
-        }
-        this.paddelRight.y += this.paddelRightVelocity.y
-        this.paddelRight.body.updateFromGameObject()
+var Win = new Phaser.Class({
+    Extends: Phaser.Scene,
 
-        if (this.ball.x < -30){
-            //scored on the left side
-            this.resetBall()
-            this.incrementLeftScore()
+    initialize:
 
-        }else if(this.ball.x > 830){
-            // scored on the right side
-            this.resetBall()
-            this.incrementRightScore()
+        function Win ()
+        {
+            Phaser.Scene.call(this, { key: 'win' });
+        },
+    create: function (){
+        var Lable1 = this.add.text(400, 300, 'Congratulations!', {fontSize: 48}).setOrigin(0.5, 0.5);
+    },
+});
 
-        }    
-    }
-    resetBall(){
-        this.ball.setPosition(400, 250)
-        const angle = Phaser.Math.Between(0, 360)
-        const vec = this.physics.velocityFromAngle(angle, 200)
-        this.ball.body.setVelocity(vec.x, vec.y)
-    }
+var Loose = new Phaser.Class({
+    Extends: Phaser.Scene,
 
-    incrementLeftScore(){
-        this.leftScore += 1
-        this.leftScoreLable.text = this.leftScore
-    }
-    incrementRightScore(){
-        this.rightScore += 1
-        this.rightScoreLable.text = this.rightScore
-    }
-}
+    initialize:
+
+        function Loose ()
+        {
+            Phaser.Scene.call(this, { key: 'loose' });
+        },
+    create: function (){
+        var Lable1 = this.add.text(400, 300, 'You loose', {fontSize: 48}).setOrigin(0.5, 0.5);
+    },
+});
+
+var config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'phaser-example',
+    backgroundColor: '#C7EDCC',
+    physics: {
+        default: 'arcade',
+        arcade: {debug: true}
+    },
+    scene: [ Level1, Win, Loose ]
+};
+
+var game = new Phaser.Game(config);
