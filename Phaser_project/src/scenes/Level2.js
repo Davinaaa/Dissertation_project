@@ -307,7 +307,7 @@ var Conversations = new Phaser.Class({
         var right_dialog = this.add.text(350, 420, 'No... I\'ll ask \nLocal Name Server \nfind it to you.', style3).setVisible(false);
 
         var style4 = { font: "20px", fill: "#000000"}
-        var broswer_name = this.add.text(80, 380, 'Broswer', style4).setVisible(true);
+        var broswer_name = this.add.text(80, 380, 'Browser', style4).setVisible(true);
         var LNS_name = this.add.text(570, 380, 'Local Name Server', style4).setVisible(false);
         var OS_name1 = this.add.text(600, 380, 'Operating System', style4).setVisible(true);
         var OS_name2 = this.add.text(30, 380, 'Operating System', style4).setVisible(false);
