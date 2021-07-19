@@ -305,6 +305,13 @@ var Conversations = new Phaser.Class({
 
         var left_dialog = this.add.text(200, 110, 'Hey, do you have the IP \naddress of www.example.com?', style3);
         var right_dialog = this.add.text(350, 420, 'No... I\'ll ask \nLocal Name Server \nfind it to you.', style3).setVisible(false);
+
+        var style4 = { font: "20px", fill: "#000000"}
+        var broswer_name = this.add.text(80, 380, 'Broswer', style4).setVisible(true);
+        var LNS_name = this.add.text(570, 380, 'Local Name Server', style4).setVisible(false);
+        var OS_name1 = this.add.text(600, 380, 'Operating System', style4).setVisible(true);
+        var OS_name2 = this.add.text(30, 380, 'Operating System', style4).setVisible(false);
+
         var count = 0;
         this.input.on('pointerdown', function () {
             count++;
@@ -322,11 +329,17 @@ var Conversations = new Phaser.Class({
             if (count == 1) {
                 right_dialogrec.setVisible(true);
                 right_dialog.setVisible(true);
+
+
             } else if (count == 2) {
                 broswer.setVisible(false);
+                broswer_name.setVisible(false);
                 OS.setVisible(false);
+                OS_name1.setVisible(false);
                 OS2.setVisible(true);
+                OS_name2.setVisible(true);
                 LNS.setVisible(true);
+                LNS_name.setVisible(true);
                 right_dialogrec.setVisible(false);
                 right_dialog.setVisible(false);
                 left_dialog.setText(OS_dia[0]);
@@ -387,7 +400,7 @@ var config = {
         default: 'arcade',
         arcade: {debug: true}
     },
-    scene: [ Loose, Level1, Win, Conversations, Level1Start, Level2]
+    scene: [ Conversations, Loose, Level1, Win, Level1Start, Level2]
 };
 
 var game = new Phaser.Game(config);
